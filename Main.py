@@ -85,8 +85,6 @@ class Ventana:
 
     
     def graficar_errores(self,cumulative_error):   
-        print("errores")
-        print(cumulative_error)
         self.errores.append(cumulative_error)
         x=self.errores
         y = range(len(x))
@@ -116,11 +114,11 @@ class Ventana:
 
     def graficar_lineas(self,pesos):
         aux=len(self.lineas)==0
-        if(len(self.lineas)==0):
+        if(aux):
             self.texto_de_epoca = self.grafica.text(3,4.5, 'Epoca: %s' % self.epoca_actual,fontsize=10)
         else:
             self.texto_de_epoca.set_text('Epoca: %s' % self.epoca_actual)
-        x1 = np.array([self.puntos[:, 0].min() - 2, self.puntos[:, 0].max() + 2])
+        x1 = np.array([self.puntos[:, 0].min() - 10, self.puntos[:, 0].max() + 10])
         for i in range(len(pesos)):
             peso=pesos[i]
             m = -peso[1] / peso[2]
@@ -208,7 +206,9 @@ class Ventana:
         self.clase=0
         self.grafica.clear()
         self.grafica_errores.clear()
-
+        self.grafica.set_xlim(-5.0,5.0)
+        self.grafica.set_ylim(-5.0,5.0)
+    
     def barrido(self):
         y = 5
         while(y>=-5):
@@ -221,29 +221,48 @@ class Ventana:
                     if(clase[1]>.5):#clase 1
                         alpha=clase[1]
                         alpha = (alpha - .5) * 2 
-                        self.grafica.plot(x,y, color=(1,0,0, alpha), marker='.')
+                        self.grafica.plot(x,y, color=(1,0,0, alpha), marker='.')#rojo
                     else:#clase 0
                         alpha=clase[0]
-                        if(clase[0]>.5):
-                            alpha = (alpha -.5) * 2 
-                        else:
-                            alpha = (alpha ) * 2 
-                        self.grafica.plot(x,y, color=(0,0,1, alpha), marker='.')
+                        #if(clase[0]>.5):
+                        #    alpha = (alpha -.5) * 2 
+                        #else:
+                        #    alpha = (alpha ) * 2 
+                        self.grafica.plot(x,y, color=(0,0,1, alpha), marker='.')#azul
                 else:#clase 2 y 3
                     if(clase[1]>.5):#clase 4
                         alpha=clase[1]
                         alpha = (alpha - .5) * 2 
-                        self.grafica.plot(x,y, color=(1,1,0, alpha), marker='.')
+                        self.grafica.plot(x,y, color=(1,0,1, alpha), marker='.')#magenta
                     else:#clase 3
                         alpha=clase[0]
                         if(clase[0]>.5):
                             alpha = (alpha -.5) * 2 
                         else:
                             alpha = (alpha ) * 2                         
-                        self.grafica.plot(x,y, color=(0,1,0, alpha), marker='.')  
-                x+=.1
-            y-=.1
-            
+                        self.grafica.plot(x,y, color=(0,1,0, alpha), marker='.')#verde 
+                x+=.05
+            y-=.05
+            print(y)
+        self.grafica.set_xlim(-5.0,5.0)
+        self.grafica.set_ylim(-5.0,5.0)
+        """
+            colores = ['b', 'r', 'g', 'm', 'c', 'y']
+            marcadores = ['x', '.', '^', 's']
+        """
+        for j,k in enumerate(self.puntos):
+            if(self.clase_deseada[j][0]==0):
+                if(self.clase_deseada[j][1]==0):
+                    self.grafica.plot(k[0], k[1],'rx')
+                else:
+                    self.grafica.plot(k[0], k[1],'b.')
+            else:
+                if(self.clase_deseada[j][1]==0):
+                    self.grafica.plot(k[0], k[1],'m^')
+                else:
+                    self.grafica.plot(k[0], k[1],'gs')
+        self.fig.canvas.draw()
+                
     def entrenar_mlp(self, event):
         for linea in self.lineas:
             linea.remove()

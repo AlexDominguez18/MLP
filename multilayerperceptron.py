@@ -99,7 +99,7 @@ class MultiLayerPerceptron:
                 
             if plotter:
                 plotter.graficar_errores(cumulative_error)
-            print("['STD'] " f"Error at epoch {epoch}: {cumulative_error}")
+            print( f"Error por epoca {epoch}: {cumulative_error}")
         return converged
 
     def guess(self, _input):

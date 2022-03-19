@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import TextBox, Button
-from matplotlib.colors import ListedColormap
 import matplotlib as mpl
 from multilayerperceptron import MultiLayerPerceptron
 
@@ -71,10 +70,11 @@ class Ventana:
         self.fig.canvas.mpl_connect('button_press_event', self.__onclick)
         plt.show()
 
+
     def __onclick(self, event):
         if event.inaxes == self.grafica:
-            current_point = [event.xdata, event.ydata]    
-            self.puntos = np.append(self.puntos, current_point).reshape([len(self.puntos) + 1, 2])
+            punto_actual= [event.xdata, event.ydata]    
+            self.puntos = np.append(self.puntos, punto_actual).reshape([len(self.puntos) + 1, 2])
             is_left_click = event.button == 1  
             clase=  str(int(self.clase)) + str(int(not is_left_click)) #obtiene el string en binario de las clases  
             aux=int(clase,2)      #obtiene el valor del binario  
@@ -92,12 +92,14 @@ class Ventana:
         self.grafica_errores.plot(y,x)
         plt.pause(0.3)
 
+
     def cambio_clase(self,event):
         self.clase= not self.clase
         if(self.clase):
             self.boton_clase.label.set_text("clase 2,3")
         else:    
             self.boton_clase.label.set_text("clase 0,1")
+
 
     def inicializar_pesos(self, event):
         if self.rango_inicializado and self.epocas_maximas>0 and len(self.puntos)>0 and not self.mlp_entrenado and self.neuronas_capa is not None:
@@ -172,6 +174,8 @@ class Ventana:
             self.error_minimo =0.1
         finally:
             self.text_box_error_minimo_deseado.set_val(self.error_minimo)
+    
+    
     def validar_capas(self,expression):
         value = 0
         try:
@@ -185,6 +189,7 @@ class Ventana:
             self.neuronas_capa = [x for x in value]
         else:
             self.neuronas_capa = [value]
+
 
     def reiniciar(self, event):
         self.puntos, self.clase_deseada = np.array([]), []
@@ -209,6 +214,7 @@ class Ventana:
         self.grafica.set_xlim(-5.0,5.0)
         self.grafica.set_ylim(-5.0,5.0)
     
+
     def barrido(self):
         y = 5
         while(y>=-5):
@@ -262,7 +268,8 @@ class Ventana:
                 else:
                     self.grafica.plot(k[0], k[1],'gs')
         self.fig.canvas.draw()
-                
+
+
     def entrenar_mlp(self, event):
         for linea in self.lineas:
             linea.remove()
@@ -288,6 +295,7 @@ class Ventana:
             plt.pause(0.1)
         self.barrido()
         plt.pause(0.1)
+
 
 if __name__ == '__main__':
     Ventana()

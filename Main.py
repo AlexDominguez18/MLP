@@ -1,6 +1,8 @@
+from cProfile import label
+from msilib.schema import RadioButton
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import TextBox, Button
+from matplotlib.widgets import TextBox, Button, RadioButtons
 import matplotlib as mpl
 from multilayerperceptron import MultiLayerPerceptron
 
@@ -32,33 +34,36 @@ class Ventana:
         #Configuracion inicial de la interfaz grafica.
         mpl.rcParams['toolbar'] = 'None'
         self.fig, (self.grafica, self.grafica_errores) = plt.subplots(1, 2)
-        self.fig.canvas.manager.set_window_title('MLP')
-        self.fig.set_size_inches(10, 8, forward=True)
-        plt.subplots_adjust(bottom=0.150, top=0.850)
+        self.fig.canvas.manager.set_window_title('Multilayer Perceptron - MLP')
+        self.fig.set_size_inches(13, 7, forward=True)
+        plt.subplots_adjust(bottom=0.220, top=0.920)
         self.grafica.set_xlim(-5.0,5.0)
         self.grafica.set_ylim(-5.0,5.0)
         self.fig.suptitle("Algoritmo MLP")
         self.grafica_errores.set_title("Errores")
-        self.grafica_errores.set_xlabel("Epoca")
+        self.grafica_errores.set_xlabel("Época")
         self.grafica_errores.set_ylabel("Error")
         # Acomodo de los botones y cajas de texto
-        cordenadas_rango = plt.axes([0.200, 0.9, 0.100, 0.03])
-        coordenadas_epcoas = plt.axes([0.440, 0.9, 0.100, 0.03])
-        coordenadas_error_deseado = plt.axes([0.720, 0.9, 0.100, 0.03])
-        coordenadas_capas=plt.axes([0.200, 0.85, 0.100, 0.03])
-        coordenadas_pesos = plt.axes([0.025, 0.05, 0.125, 0.03])
-        coordenadas_clase = plt.axes([0.160, 0.05, 0.1, 0.03])
-        coordenadas_reiniciar = plt.axes([0.270, 0.05, 0.1, 0.03])
-        coordenadas_entrenar_mlp= plt.axes([0.380, 0.05, 0.1, 0.03])
+        cordenadas_rango = plt.axes([0.210, 0.10, 0.07, 0.03])
+        coordenadas_epcoas = plt.axes([0.420, 0.10, 0.07, 0.03])
+        coordenadas_error_deseado = plt.axes([0.210, 0.05, 0.07, 0.03])
+        coordenadas_capas=plt.axes([0.420, 0.05, 0.07, 0.03])
+        coordenadas_pesos = plt.axes([0.510, 0.05, 0.125, 0.03])
+        coordenadas_clase = plt.axes([0.510, 0.10, 0.125, 0.03])
+        coordenadas_reiniciar = plt.axes([0.650, 0.05, 0.1, 0.03])
+        coordenadas_entrenar_mlp= plt.axes([0.650, 0.10, 0.1, 0.03])
+        coordenadas_GD = plt.axes([0.770, 0.04, 0.13, 0.1])
         
-        self.text_box_rango = TextBox(cordenadas_rango, "Rango de aprendizaje:")
-        self.text_box_epocas = TextBox(coordenadas_epcoas, "Épocas maximas:")
-        self.text_box_error_minimo_deseado = TextBox(coordenadas_error_deseado, "Error mínimo deseado:")
-        self.text_box_capas = TextBox(coordenadas_capas, "neuronas por capa (,):")
+        self.text_box_rango = TextBox(cordenadas_rango, "Rango de aprendizaje: ")
+        self.text_box_epocas = TextBox(coordenadas_epcoas, "Épocas maximas: ")
+        self.text_box_error_minimo_deseado = TextBox(coordenadas_error_deseado, "Error mínimo deseado: ")
+        self.text_box_capas = TextBox(coordenadas_capas, "Neuronas por capa (,): ")
         boton_pesos = Button(coordenadas_pesos, "Inicializar pesos")
         self.boton_clase = Button(coordenadas_clase, "Clase 0,1")
         boton_reiniciar = Button(coordenadas_reiniciar, "Reiniciar")
         boton_entrenar_mlp = Button(coordenadas_entrenar_mlp, "MLP")
+        self.boton_GD = RadioButtons(coordenadas_GD, ('GD Estocástico','GD por Lotes','GD mini-lotes'), activecolor='blue')
+        
         self.text_box_epocas.on_submit(self.validar_epocas)
         self.text_box_rango.on_submit(self.validar_rango)
         self.text_box_error_minimo_deseado.on_submit(self.validar_error_minimo_deseado)
@@ -68,8 +73,12 @@ class Ventana:
         boton_reiniciar.on_clicked(self.reiniciar)
         boton_entrenar_mlp.on_clicked(self.entrenar_mlp)
         self.fig.canvas.mpl_connect('button_press_event', self.__onclick)
+        self.boton_GD.on_clicked(self.indice)
         plt.show()
 
+
+    def indice(self,label):
+        print(label)
 
     def __onclick(self, event):
         if event.inaxes == self.grafica:

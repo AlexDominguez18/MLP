@@ -75,6 +75,16 @@ class MultiLayerPerceptron:
             self.weights[i] = new_w
 
     
+    def gradiente_descendente_estocastico(self):
+        pass
+
+
+    def gradiente_descendente_por_lotes():
+        pass
+
+
+    def gradiente_descende_mini_lotes():
+        pass
 
     def fit(self, inputs, desired_outputs, epochs, learning_rate, desired_error=None, plotter=None):
         converged = False
@@ -96,6 +106,7 @@ class MultiLayerPerceptron:
                 self.back_propagate(error)
                 cumulative_error += squared_error[0][0]                
                 self.gradient_descent(learning_rate)
+                #elegir el tipo de gradiente con que entrenar.
                 
             if plotter:
                 plotter.graficar_errores(cumulative_error)

@@ -74,17 +74,33 @@ class MultiLayerPerceptron:
             new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)
             self.weights[i] = new_w
 
+
+    '''def learning_schedule(t):
+        t0, t1 = 5, 50
+        return t0 / (t + t1)
     
     def gradiente_descendente_estocastico(self):
-        pass
+        theta = np.random.randn(2,1) # random initialization
+        for epoch in range(n_epochs):
+            for i in range(m):
+                random_index = np.random.randint(m)
+                xi = X_b[random_index:random_index+1]
+                yi = y[random_index:random_index+1]
+                gradients = 2 * xi.T.dot(xi.dot(theta) - yi)
+                eta = learning_schedule(epoch * m + i)
+                theta = theta - eta * gradients
 
 
-    def gradiente_descendente_por_lotes():
-        pass
+    def gradiente_descendente_por_lotes(self):
+        m = 100
+        theta = np.random.randn(2,1) # random initialization
+        for iteration in range(len(self.weights)):
+            gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)
+            theta = theta - learning_rate * gradients
 
 
-    def gradiente_descende_mini_lotes():
-        pass
+    def gradiente_descende_mini_lotes(self):
+        pass'''
 
     def fit(self, inputs, desired_outputs, epochs, learning_rate, desired_error=None, plotter=None):
         converged = False

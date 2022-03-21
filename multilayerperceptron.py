@@ -74,33 +74,14 @@ class MultiLayerPerceptron:
             new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)
             self.weights[i] = new_w
 
+    def gradient_descent_batch(self, learning_rate):
+        aux=deepcopy(self.weights)
+        for i in range(len(self.weights)):
+            new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)
+            aux[i] = new_w
+        return aux
 
-    '''def learning_schedule(t):
-        t0, t1 = 5, 50
-        return t0 / (t + t1)
     
-    def gradiente_descendente_estocastico(self):
-        theta = np.random.randn(2,1) # random initialization
-        for epoch in range(n_epochs):
-            for i in range(m):
-                random_index = np.random.randint(m)
-                xi = X_b[random_index:random_index+1]
-                yi = y[random_index:random_index+1]
-                gradients = 2 * xi.T.dot(xi.dot(theta) - yi)
-                eta = learning_schedule(epoch * m + i)
-                theta = theta - eta * gradients
-
-
-    def gradiente_descendente_por_lotes(self):
-        m = 100
-        theta = np.random.randn(2,1) # random initialization
-        for iteration in range(len(self.weights)):
-            gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)
-            theta = theta - learning_rate * gradients
-
-
-    def gradiente_descende_mini_lotes(self):
-        pass'''
 
     def fit(self, inputs, desired_outputs, epochs, learning_rate, desired_error=None, plotter=None):
         converged = False
@@ -128,7 +109,47 @@ class MultiLayerPerceptron:
                 plotter.graficar_errores(cumulative_error)
             print( f"Error por epoca {epoch}: {cumulative_error}")
         return converged
-
+    def fit_lotes(self, inputs, desired_outputs, epochs, learning_rate, desired_error=None, plotter=None):
+        print("Por lotes...")
+        converged = False
+        cumulative_error = desired_error if desired_error else 1
+        starting_epoch = plotter.epoca_actual + 1
+        last_epoch = starting_epoch + epochs
+        batch=[]
+        for epoch in range(starting_epoch, last_epoch):
+            batch=[]
+            if plotter:
+                plotter.epoca_actual = epoch
+            if desired_error and cumulative_error < desired_error:
+                converged = True
+                break
+            cumulative_error = 0
+            for _input, desired_output in zip(inputs, desired_outputs):
+                output = self.forward_propagate(_input)
+                desired_output = desired_output.reshape(output.shape)
+                error = desired_output - output
+                squared_error = np.dot(error.T, error)
+                self.back_propagate(error)
+                cumulative_error += squared_error[0][0]                
+                batch.append(self.gradient_descent_batch(learning_rate))
+            self.avg_and_update(batch)
+            if plotter:
+                plotter.graficar_errores(cumulative_error)
+            print( f"Error por epoca {epoch}: {cumulative_error}")
+        return converged
+    def avg_and_update(self,batch):#calula el promedido de los gradientes y actualiza pesos
+        aux=deepcopy(batch[0])
+        cont=len(batch)
+        for i in range(cont):
+            if i!=0:
+                for j in range(len(batch[i])):
+                    aux[j]=aux[j]+batch[i][j]
+        for a in aux:
+            for i in range(len(a)):
+                a[i]=a[i]/cont
+        for i in range(len(aux)):       
+            self.weights[i] = aux[i]
+        
     def guess(self, _input):
         output = self.forward_propagate(_input)
         output = np.array([x for x in output])

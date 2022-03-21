@@ -28,6 +28,7 @@ class Ventana:
     marcadores = ['x', '.', '^', 's']
     comobinacion_marcadores=[color + marker for marker, color in zip(marcadores, colores)]
     marcadores_de_linea=[c + '-' for c in reversed(colores)]
+    tipo_gradiente=0
 
 
     def __init__(self):
@@ -62,7 +63,7 @@ class Ventana:
         self.boton_clase = Button(coordenadas_clase, "Clase 0,1")
         boton_reiniciar = Button(coordenadas_reiniciar, "Reiniciar")
         boton_entrenar_mlp = Button(coordenadas_entrenar_mlp, "MLP")
-        self.boton_GD = RadioButtons(coordenadas_GD, ('GD Estocástico','GD por Lotes','GD mini-lotes'), activecolor='blue')
+        self.boton_GD = RadioButtons(coordenadas_GD, ('GD Estocástico','GD por Lotes'), activecolor='blue')
         
         self.text_box_epocas.on_submit(self.validar_epocas)
         self.text_box_rango.on_submit(self.validar_rango)
@@ -79,6 +80,10 @@ class Ventana:
 
     def indice(self,label):
         print(label)
+        if(label=='GD por Lotes'):
+            self.tipo_gradiente=1
+        else:
+            self.tipo_gradiente=0
 
     def __onclick(self, event):
         if event.inaxes == self.grafica:
@@ -289,7 +294,10 @@ class Ventana:
         hyper_params_are_set = learning_rate_initialized == max_epochs_initialized == desired_error_is_set is True
         if not self.mlp_entrenado and self.pesos_inicializados and hyper_params_are_set:
             self.clase_deseada = np.array(self.clase_deseada)
-            converged = self.mlp.fit(self.puntos, self.clase_deseada, self.epocas_maximas, self.rango, self.error_minimo, self)
+            if(self.tipo_gradiente==0):
+                converged = self.mlp.fit(self.puntos, self.clase_deseada, self.epocas_maximas, self.rango, self.error_minimo, self)
+            else:
+                converged = self.mlp.fit_lotes(self.puntos, self.clase_deseada, self.epocas_maximas, self.rango, self.error_minimo, self)
             convergence_text = "convergio" if converged else "no convergio"
             if self.texto_de_convergencia:
                 self.texto_de_convergencia.set_text(convergence_text)

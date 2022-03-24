@@ -248,7 +248,7 @@ class Ventana:
                         #    alpha = (alpha -.5) * 2 
                         #else:
                         #    alpha = (alpha ) * 2 
-                        self.grafica.plot(x,y, color=(0,0,1, alpha), marker='.')#azul
+                        self.grafica.plot(x,y, color=(0,0,1, 1), marker='.')#azul
                 else:#clase 2 y 3
                     if(clase[1]>.5):#clase 4
                         alpha=clase[1]

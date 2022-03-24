@@ -18,6 +18,7 @@ class MultiLayerPerceptron:
         self.error_reached_QP = None
         self.last_gradient = None
         self.last_nabla_w = None
+        self.batch=None
 
     def init_weights(self):
         def get_weights_within_normalization_range(size):
@@ -31,7 +32,7 @@ class MultiLayerPerceptron:
         self.weights.append(get_weights_within_normalization_range((layers[0], self.input_vector_size + 1)))
         for i in range(1, len(layers)):
             self.weights.append(get_weights_within_normalization_range((layers[i], layers[i-1]  + 1)))
-        print(self.weights)
+        #print(self.weights)
 
     def forward_propagate(self, inputs):
         self.a = []
@@ -73,13 +74,13 @@ class MultiLayerPerceptron:
         for i in range(len(self.weights)):
             new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)
             self.weights[i] = new_w
+        
 
     def gradient_descent_batch(self, learning_rate):
-        aux=deepcopy(self.weights)
         for i in range(len(self.weights)):
-            new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)
-            aux[i] = new_w
-        return aux
+            new_w = self.weights[i] + learning_rate * np.dot(self.s[i], self.a[i].T)            
+            self.batch[i]+=new_w
+        self.cont+=1
 
     
 
@@ -112,12 +113,14 @@ class MultiLayerPerceptron:
     def fit_lotes(self, inputs, desired_outputs, epochs, learning_rate, desired_error=None, plotter=None):
         print("Por lotes...")
         converged = False
+        
         cumulative_error = desired_error if desired_error else 1
         starting_epoch = plotter.epoca_actual + 1
         last_epoch = starting_epoch + epochs
-        batch=[]
+        
         for epoch in range(starting_epoch, last_epoch):
-            batch=[]
+            self.batch=deepcopy(self.weights)
+            self.cont=1
             if plotter:
                 plotter.epoca_actual = epoch
             if desired_error and cumulative_error < desired_error:
@@ -131,24 +134,21 @@ class MultiLayerPerceptron:
                 squared_error = np.dot(error.T, error)
                 self.back_propagate(error)
                 cumulative_error += squared_error[0][0]                
-                batch.append(self.gradient_descent_batch(learning_rate))
-            self.avg_and_update(batch)
+                self.gradient_descent_batch(learning_rate)
+            self.avg_and_update()
             if plotter:
                 plotter.graficar_errores(cumulative_error)
             print( f"Error por epoca {epoch}: {cumulative_error}")
         return converged
-    def avg_and_update(self,batch):#calula el promedido de los gradientes y actualiza pesos
-        aux=deepcopy(batch[0])
-        cont=len(batch)
-        for i in range(cont):
-            if i!=0:
-                for j in range(len(batch[i])):
-                    aux[j]=aux[j]+batch[i][j]
-        for a in aux:
+    def avg_and_update(self):#calula el promedido de los gradientes y actualiza pesos
+        cont=self.cont
+       
+        for a in self.batch:
             for i in range(len(a)):
                 a[i]=a[i]/cont
-        for i in range(len(aux)):       
-            self.weights[i] = aux[i]
+        for i in range(len(self.batch)):       
+            self.weights[i] = self.batch[i]
+        #print("cont:"+str(self.cont))
         
     def guess(self, _input):
         output = self.forward_propagate(_input)
